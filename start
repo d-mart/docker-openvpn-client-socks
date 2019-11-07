@@ -1,11 +1,16 @@
 #!/bin/bash
 
+# example usage
+# CONTAINER_NAME=myvpn SOCKS_PORT=1281 ./start somevpn.conf somelogin.conf
+
 exec docker run \
     --rm \
     --tty \
     --interactive \
+    --name=${CONTAINER_NAME:-openvpn-socks} \
     --device=/dev/net/tun \
     --cap-add=NET_ADMIN \
-    --publish 127.0.0.1:1081:1080 \
+    --publish 127.0.0.1:${SOCKS_PORT:-1080}:1080 \
     --volume "$(realpath "$1"):/ovpn.conf:ro" \
-    mook/openvpn-client-socks:${TAG:-latest}
+    --volume "$(realpath "$2"):/login.conf:ro" \
+    "${IMAGE:-mook/openvpn-client-socks}":"${TAG:-latest}"

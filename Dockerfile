@@ -1,10 +1,7 @@
 # OpenVPN client + SOCKS proxy
 # Usage:
-# Create configuration (.ovpn), mount it in a volume
-# docker run --volume=something.ovpn:/ovpn.conf:ro --device=/dev/net/tun --cap-add=NET_ADMIN
-# Connect to (container):1080
-# Note that the config must have embedded certs
-# See `start` in same repo for more ideas
+# See `start` in same repo for how to run
+
 
 FROM alpine:edge
 
