@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -e
+
+docker build --file Dockerfile        --tag dmart/openvpn-client-socks:latest        .
+#docker build --file Dockerfile.alpine --tag dmart/openvpn-client-socks:alpine-latest .

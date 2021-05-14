@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+# NOTE TO SELF: even tho ./start overrides the DNS, it looks like the conatiner's dns is _later_ overridden
+# to be the VPN coordinator's private address, and not fixed when the vpn connection breaks, meaning it later
+# tries to resolve vpn.roadie.com from dns server 10.0.0.2 which won't work. Possibly add host entries for
+# vpn.roadie.com, which may also break, but less often.
+
+######## Alpine container
+#export IMAGE=dmart/openvpn-client-socks:alpine-latest
+#export CONTAINER_NAME=roadie-vpn
+#export SOCKS_PORT=1281
+
+
+######## Ubuntu container
+export IMAGE=dmart/openvpn-client-socks:latest
+export CONTAINER_NAME=roadie-vpn-ubuntu
+export SOCKS_PORT=1282
+export SSH_PORT=2323
+
+while true; do
+  ./start roadie.ovpn login.conf
+  echo -e "\n[$(date)] Sleeping for 30s then restarting vpn container..."
+  sleep 30
+done
+
+### for using ubuntu container and getting socks forwarded:
+# autossh -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" -D 1281 -p 2323 -M 0 root@localhost
+### OR autossh -M 0 vpnsox
+# Host vpnsox
+#     User root
+#     HostName 127.0.0.1
+#     Port 2323
+#     IdentityFile ~/.ssh/tunnel_id_ed25519
+#     StrictHostKeyChecking no
+#     UserKnownHostsFile /dev/null
+#     DynamicForward 1281
+#

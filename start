@@ -1,16 +1,34 @@
-#!/bin/bash
+#!/bin/bash -x
 
 # example usage
 # CONTAINER_NAME=myvpn SOCKS_PORT=1281 ./start somevpn.conf somelogin.conf
+function usage() {
+  cat <<EOF
+Usage:
+
+$ CONTAINER_NAME=myvpn SOCKS_PORT=1281 ./start somevpn.conf somelogin.conf
+EOF
+}
+
+if [ "$#" -ne 2 ]; then
+  usage
+  exit 240
+fi
+
+OVPN_CONF_FILE="$1"
+LOGIN_CONF_FILE="$2"
 
 exec docker run \
     --rm \
     --tty \
     --interactive \
     --name=${CONTAINER_NAME:-openvpn-socks} \
+    --dns 1.1.1.1 --dns 9.9.9.9 \
+    --add-host vpn.roadie.com:54.165.16.112 \
     --device=/dev/net/tun \
     --cap-add=NET_ADMIN \
     --publish 127.0.0.1:${SOCKS_PORT:-1080}:1080 \
-    --volume "$(realpath "$1"):/ovpn.conf:ro" \
-    --volume "$(realpath "$2"):/login.conf:ro" \
-    "${IMAGE:-mook/openvpn-client-socks}":"${TAG:-latest}"
+    --publish 127.0.0.1:${SSH_PORT:-2323}:22 \
+    --volume "$(realpath "$OVPN_CONF_FILE"):/ovpn.conf:ro" \
+    --volume "$(realpath "$LOGIN_CONF_FILE"):/login.conf:ro" \
+    "${IMAGE}"
